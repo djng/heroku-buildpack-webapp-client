@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # bin/compile <build-dir> <cache-dir>
 
+bpwatch init ENV[foo]
+bpwatch build python v34 $REQUEST_ID
+
 # fail fast
 set -e
 
@@ -158,9 +161,11 @@ VENDORED_SCONS="$(mktmpdir scons)"
 
 # download and unpack packages
 echo "-----> Fetching Node.js binaries"
-package_download "nodejs" "${NODE_VERSION}" "${VENDORED_NODE}"
-package_download "npm" "${NPM_VERSION}" "${VENDORED_NPM}"
-package_download "scons" "${SCONS_VERSION}" "${VENDORED_SCONS}"
+bpwatch start fetch_binaries
+  package_download "nodejs" "${NODE_VERSION}" "${VENDORED_NODE}"
+  package_download "npm" "${NPM_VERSION}" "${VENDORED_NPM}"
+  package_download "scons" "${SCONS_VERSION}" "${VENDORED_SCONS}"
+bpwatch end fetch_binaries
 
 # vendor node into the slug
 PATH="$BUILD_DIR/bin:$PATH"
