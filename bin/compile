@@ -19,13 +19,6 @@ BUILD_DIR=$1
 CACHE_DIR=$2
 LP_DIR=`cd $(dirname $0); cd ..; pwd`
 
-if [ -e "$LP_DIR/vendor/bpwatch_secret.sh" ]; then
-  source "$LP_DIR/vendor/bpwatch_secret.sh"
-  bpwatch init $BPWATCH_SECRET
-  bpwatch build node v35 $REQUEST_ID
-  bpwatch start compile
-fi
-
 function error() {
   echo " !     $*" >&2
   exit 1
@@ -45,6 +38,16 @@ function indent() {
     *)      sed -u "$c";;
   esac
 }
+
+# Measure buildpack performance
+BUILDPACK_VERSION=v35
+if [ -e "$LP_DIR/vendor/bpwatch_secret.sh" ]; then
+  source "$LP_DIR/vendor/bpwatch_secret.sh"
+  export PATH=$PATH:$LP_DIR/vendor
+  bpwatch init $BPWATCH_SECRET
+  bpwatch build node $BUILDPACK_VERSION $REQUEST_ID
+  bpwatch start compile
+fi
 
 function run_npm() {
   command="$1"
@@ -192,5 +195,5 @@ mkdir -p $BUILD_DIR/.profile.d
 echo "export PATH=\"\$HOME/bin:\$HOME/node_modules/.bin:\$PATH\"" > $BUILD_DIR/.profile.d/nodejs.sh
 
 if test $BPWATCH_SECRET; then
-  bpwatch end compile
+  bpwatch stop compile
 fi
