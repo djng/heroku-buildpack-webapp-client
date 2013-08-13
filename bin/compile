@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 # bin/compile <build-dir> <cache-dir>
 
-bpwatch init ENV[foo]
-bpwatch build python v34 $REQUEST_ID
-
 # fail fast
 set -e
 
@@ -21,6 +18,13 @@ S3_BUCKET="heroku-buildpack-nodejs"
 BUILD_DIR=$1
 CACHE_DIR=$2
 LP_DIR=`cd $(dirname $0); cd ..; pwd`
+
+if [ -e "$LP_DIR/vendor/bpwatch_secret.sh" ]; then
+  source "$LP_DIR/vendor/bpwatch_secret.sh"
+  bpwatch init $BPWATCH_SECRET
+  bpwatch build node v35 $REQUEST_ID
+  bpwatch start compile
+fi
 
 function error() {
   echo " !     $*" >&2
@@ -161,11 +165,9 @@ VENDORED_SCONS="$(mktmpdir scons)"
 
 # download and unpack packages
 echo "-----> Fetching Node.js binaries"
-bpwatch start fetch_binaries
-  package_download "nodejs" "${NODE_VERSION}" "${VENDORED_NODE}"
-  package_download "npm" "${NPM_VERSION}" "${VENDORED_NPM}"
-  package_download "scons" "${SCONS_VERSION}" "${VENDORED_SCONS}"
-bpwatch end fetch_binaries
+package_download "nodejs" "${NODE_VERSION}" "${VENDORED_NODE}"
+package_download "npm" "${NPM_VERSION}" "${VENDORED_NPM}"
+package_download "scons" "${SCONS_VERSION}" "${VENDORED_SCONS}"
 
 # vendor node into the slug
 PATH="$BUILD_DIR/bin:$PATH"
@@ -188,3 +190,7 @@ echo "Dependencies installed" | indent
 echo "-----> Building runtime environment"
 mkdir -p $BUILD_DIR/.profile.d
 echo "export PATH=\"\$HOME/bin:\$HOME/node_modules/.bin:\$PATH\"" > $BUILD_DIR/.profile.d/nodejs.sh
+
+if test $BPWATCH_SECRET; then
+  bpwatch end compile
+fi
