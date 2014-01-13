@@ -17,6 +17,13 @@ source $bp_dir/bin/common.sh
 # Output npm debug info on error
 trap cat_npm_debug_log ERR
 
+status ""
+status "Greetings, hacker!"
+status "Thanks for helping us test the diet branch, but it's now deprecated."
+status "Please configure your app to use the default buildpack:"
+status "heroku config:unset BUILDPACK_URL -a myapp"
+status ""
+
 # Look in package.json's engines.node field for a semver range
 semver_range=$(cat $build_dir/package.json | $bp_dir/vendor/jq -r .engines.node)
 
