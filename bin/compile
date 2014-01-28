@@ -132,6 +132,16 @@ status "Building runtime environment"
 mkdir -p $build_dir/.profile.d
 echo "export PATH=\"\$HOME/vendor/node/bin:\$HOME/bin:\$HOME/node_modules/.bin:\$PATH\";" > $build_dir/.profile.d/nodejs.sh
 
+# Recruit browserify users!
+if grep --quiet browserify package.json; then
+  echo
+  echo
+  status "Greetings, browserify user. Want to work on node stuff at Heroku?"
+  status "open https://node-people.herokuapp.com/$REQUEST_ID"
+  echo
+  echo
+fi
+
 # Post package.json to nomnom service
 # Use a subshell so failures won't break the build.
 (
