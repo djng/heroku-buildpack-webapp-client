@@ -136,8 +136,8 @@ echo "export PATH=\"\$HOME/vendor/node/bin:\$HOME/bin:\$HOME/node_modules/.bin:\
 if grep --quiet browserify package.json; then
   echo
   echo
-  status "Greetings, browserify user. Want to work on node stuff at Heroku?"
-  status "open https://node-people.herokuapp.com/$REQUEST_ID"
+  status "Psst! Want to work on node stuff at Heroku?"
+  status "https://node-people.herokuapp.com/?$REQUEST_ID"
   echo
   echo
 fi
