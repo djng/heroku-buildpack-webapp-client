@@ -46,6 +46,7 @@ testStableVersion() {
   compile "stable-node"
   assertNotCaptured "PRO TIP: Avoid using semver"
   assertNotCaptured "PRO TIP: Specify"
+  assertNotCaptured "Found Gruntfile"
   assertCaptured "Resolved node version"
   assertCapturedSuccess
 }
@@ -123,6 +124,12 @@ testEnvDirExported() {
   echo "koi" > $env_dir/fish
   compile "stable-node" "$(mktmpdir)" $env_dir
   assertCaptured "Exporting config vars to environment"
+  assertCapturedSuccess
+}
+
+testGrunt() {
+  compile "grunt"
+  assertCaptured "Found Gruntfile"
   assertCapturedSuccess
 }
 
