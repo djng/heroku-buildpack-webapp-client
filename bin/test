@@ -86,8 +86,6 @@ testModulesCheckedIn() {
 
 testUserConfig() {
   compile "userconfig"
-  assertCaptured "https://www.google.com/"
-  assertCaptured "registry error"
   assertCapturedError 1 ""
 }
 

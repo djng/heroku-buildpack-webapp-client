@@ -49,12 +49,14 @@ mv $build_dir/node-v$node_version-linux-x64 $build_dir/vendor/node
 chmod +x $build_dir/vendor/node/bin/*
 PATH=$build_dir/vendor/node/bin:$PATH
 
+# Run subsequent node/npm commands from the build path
+cd $build_dir
+
 # Install npm@next
 status "Installing the 'next' version of npm"
 npm install -g npm@next
-
-# Run subsequent node/npm commands from the build path
-cd $build_dir
+npm_version=$(npm -v)
+status "Using npm version: $npm_version"
 
 # If node_modules directory is checked into source control then
 # rebuild any native deps. Otherwise, restore from the build cache.
