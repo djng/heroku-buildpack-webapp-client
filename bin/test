@@ -5,7 +5,9 @@ testMemDetection() {
   compile "mem-detect"
   assertCapturedSuccess
   MEM_AVAILABLE=1024 && source ${compile_dir}/.profile.d/nodejs.sh
-  assertEquals "1024 512 2" "$(cluster ${compile_dir}/mem.js)"
+
+  # available, allowance, process count, gc available
+  assertEquals "1024 512 2 true" "$(cluster ${compile_dir}/mem.js)"
 }
 
 testDetectWithPackageJson() {
