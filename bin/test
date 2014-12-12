@@ -1,13 +1,28 @@
 #!/usr/bin/env bash
 # See README.md for info on running these tests.
 
-testMemDetection() {
-  compile "mem-detect"
-  assertCapturedSuccess
-  MEM_AVAILABLE=1024 && source ${compile_dir}/.profile.d/nodejs.sh
+testMemAllowance() {
+  {
+    compile "mem-allowance"
+    assertCapturedSuccess
+    MEM_AVAILABLE=1024; PROCESS_MEM=512; unset PROCESS_COUNT
+    source ${compile_dir}/.profile.d/nodejs.sh &> /dev/null
 
-  # available, allowance, process count, gc available
-  assertEquals "1024 512 2 true" "$(cluster ${compile_dir}/mem.js)"
+    # available, allowance, process count
+    assertEquals "1024 512 2" "$(node ${compile_dir}/mem.js)"
+  }
+}
+
+testNoMemAllowance() {
+  {
+    compile "mem-allowance"
+    assertCapturedSuccess
+    MEM_AVAILABLE=1024; unset PROCESS_MEM; unset PROCESS_COUNT
+    source ${compile_dir}/.profile.d/nodejs.sh &> /dev/null 
+
+    # available, allowance, process count
+    assertEquals "1024 1024 1" "$(node ${compile_dir}/mem.js)"
+  }
 }
 
 testDetectWithPackageJson() {
