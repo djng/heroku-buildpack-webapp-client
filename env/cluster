@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+# invoke node with explicit memory limits, aggressive gc, and exposed gc
+cluster() {
+  node --max_old_space_size=$MEM_ALLOWANCE --expose-gc --use_idle_notification $*
+}
+
+# infer memory limits from the environment
+detect_mem() {
+  if [ "$MEM_AVAILABLE" != "" ]; then
+    echo $MEM_AVAILABLE
+  else
+    local limit=$(ulimit -u)
+    local mem
+
+    case $limit in
+    256) mem=512;;
+    512) mem=1024;;
+    32768) mem=8192;;
+    *) mem=512;;
+    esac
+
+    echo $mem
+  fi
+}
+
+provide_environment() {
+  let MEM_AVAILABLE=$(detect_mem)
+  let MEM_ALLOWANCE=${MEM_ALLOWANCE:-512}    # convert to a number
+
+  # safe defaults
+  if ! (( $MEM_AVAILABLE > 0 && $MEM_ALLOWANCE > 0 )); then
+    let MEM_AVAILABLE=512
+    let MEM_ALLOWANCE=512
+  fi
+
+  # automatically floors decimals
+  let PROCESS_COUNT=$MEM_AVAILABLE/$MEM_ALLOWANCE
+}
+
+provide_environment
+
+export MEM_AVAILABLE=$MEM_AVAILABLE
+export MEM_ALLOWANCE=$MEM_ALLOWANCE
+export PROCESS_COUNT=$PROCESS_COUNT

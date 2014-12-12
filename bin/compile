@@ -182,8 +182,10 @@ head "Finalizing build"
 # Runtime & Multi-buildpack exports
 info "Creating runtime environment"
 mkdir -p $build_dir/.profile.d
-echo "export PATH=\"\$HOME/.heroku/node/bin:\$HOME/bin:\$HOME/node_modules/.bin:\$PATH\"" > $build_dir/.profile.d/nodejs.sh
+cp $bp_dir/env/cluster $build_dir/.profile.d/nodejs.sh
+echo "export PATH=\"\$HOME/.heroku/node/bin:\$HOME/bin:\$HOME/node_modules/.bin:\$PATH\"" >> $build_dir/.profile.d/nodejs.sh
 echo "export NODE_HOME=\"\$HOME/.heroku/node\"" >> $build_dir/.profile.d/nodejs.sh
+
 
 info "Exporting binary paths"
 echo "export PATH=\"$build_dir/.heroku/node/bin:$build_dir/node_modules/.bin:\$PATH\"" > $bp_dir/export

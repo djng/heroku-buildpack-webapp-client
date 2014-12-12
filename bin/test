@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 # See README.md for info on running these tests.
 
+testMemDetection() {
+  compile "mem-detect"
+  assertCapturedSuccess
+  MEM_AVAILABLE=1024 && source ${compile_dir}/.profile.d/nodejs.sh
+  assertEquals "1024 512 2" "$(cluster ${compile_dir}/mem.js)"
+}
+
 testDetectWithPackageJson() {
   detect "stable-node"
   assertCaptured "Node.js"
