@@ -199,6 +199,10 @@ if [ -e $build_dir/bower.json ]; then
   fi
 fi
 
+# Run grunt
+status "Running grunt build task"
+$build_dir/node_modules/.bin/grunt build 2>&1 | indent
+
 # Update the PATH
 status "Building runtime environment"
 mkdir -p $build_dir/.profile.d
