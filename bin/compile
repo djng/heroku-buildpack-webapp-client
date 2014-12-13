@@ -4,11 +4,17 @@ set -e            # fail fast
 set -o pipefail   # don't ignore exit codes when piping output
 # set -x          # enable debugging
 
+# Enable extended globbing
+shopt -s extglob
+
 # Configure directories
 build_dir="$1/client"
 cache_dir=$2
 env_dir=$3
 bp_dir=$(cd $(dirname $0); cd ..; pwd)
+
+# Option [nocl] to disable cleanup for testing
+cleanup=$4
 
 # Load some convenience functions like status(), echo(), and indent()
 source $bp_dir/bin/common.sh
@@ -208,3 +214,9 @@ status "Building runtime environment"
 mkdir -p $build_dir/.profile.d
 echo "export PATH=\"\$HOME/vendor/node/bin:\$HOME/bin:\$HOME/node_modules/.bin:\$PATH\";" > $build_dir/.profile.d/nodejs.sh
 echo "export PATH=\"\$HOME/.gem/$RUBY_VERSION/bin:\$PATH\"" > $build_dir/.profile.d/ruby.sh
+
+# Cleanup
+if [ "$cleanup" != "nocl" ]; then
+  status "Cleanup"
+  rm -rf !(dist)
+fi
