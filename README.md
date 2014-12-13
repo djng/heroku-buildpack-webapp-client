@@ -1,82 +1,47 @@
-Heroku Buildpack for Node.js
-============================
+Web Application Buildpack
+=========================
 
-This is the official [Heroku buildpack](http://devcenter.heroku.com/articles/buildpacks) for Node.js apps. If you fork this repository, please **update this README** to explain what your fork does and why it's special.
+This is a [Heroku buildpack](http://devcenter.heroku.com/articles/buildpacks) for your grunt based web application located in the `client` directory of your project. It installs npm and bower dependencies, runs grunt and supports compass.
 
+The buildpack runs if it finds a `client` directory containing a gruntfile (`grunt.js`, `Gruntfile.js` or `Gruntfile.coffee`).
+Your gruntfile must provide a `build` task and build the client into a `client/dist` folder.
+
+Your server buildpack can then collect and serve the assets from `client/dist`.
+
+How to use
+----------
+
+This is _not_ a standalone buildpack. It builds the client part of your web application and should be used together with other buildpacks like
+[heroku-buildpack-ruby](https://github.com/heroku/heroku-buildpack-ruby) or [heroku-buildpack-python](https://github.com/heroku/heroku-buildpack-python).
+Use [heroku-buildpack-multi](https://github.com/heroku/heroku-buildpack-multi) to run multiple buildpacks:
+
+    $ heroku config:add BUILDPACK_URL=https://github.com/heroku/heroku-buildpack-multi.git
+
+From here you will need to create a `.buildpacks` file which contains the buildpacks you wish to run when you deploy:
+
+    $ cat .buildpacks
+    https://github.com/djng/heroku-buildpack-webapp-client.git
+    <YOUR BUILDPACK> [i.e. https://github.com/heroku/heroku-buildpack-ruby.git, https://github.com/heroku/heroku-buildpack-python.git, ...]
 
 How it Works
 ------------
 
 Here's an overview of what this buildpack does:
 
-- Uses the [semver.io](https://semver.io) webservice to find the latest version of node that satisfies the [engines.node semver range](https://npmjs.org/doc/json.html#engines) in your package.json.
-- Allows any recent version of node to be used, including [pre-release versions](https://semver.io/node.json).
-- Uses an [S3 caching proxy](https://github.com/heroku/s3pository#readme) of nodejs.org for faster downloads of the node binary.
-- Discourages use of dangerous semver ranges like `*` and `>0.10`.
-- Uses the version of `npm` that comes bundled with `node`.
-- Puts `node` and `npm` on the `PATH` so they can be executed with [heroku run](https://devcenter.heroku.com/articles/one-off-dynos#an-example-one-off-dyno).
-- Caches the `node_modules` directory across builds for fast deploys.
-- Doesn't use the cache if `node_modules` is checked into version control.
-- Runs `npm rebuild` if `node_modules` is checked into version control.
-- Always runs `npm install` to ensure [npm script hooks](https://npmjs.org/doc/misc/npm-scripts.html) are executed.
-- Always runs `npm prune` after restoring cached modules to ensure cleanup of unused dependencies.
-
-For more technical details, see the [heavily-commented compile script](https://github.com/heroku/heroku-buildpack-nodejs/blob/master/bin/compile).
+- Almost everything<sup>[[1]](#bpnchg)</sup> that [heroku-buildpack-nodejs](https://github.com/heroku/heroku-buildpack-nodejs) does (mainly installs node and npm and runs `npm install`).
+- Installs grunt and compass.
+- Installs bower if `client/bower.json` is available and runs `bower install`
+- Runs `grunt build`.
+- Removes everything except the `client/dist` folder.
 
 
-Documentation
--------------
+For more technical details, see the [heavily-commented compile script](https://github.com/djng/heroku-buildpack-webapp-client/blob/master/bin/compile).
 
-For more information about using Node.js and buildpacks on Heroku, see these Dev Center articles:
+<sup><a name="bpnchg">[1]</a></sup> The following changes are made compared to [heroku-buildpack-nodejs](https://github.com/heroku/heroku-buildpack-nodejs):
 
-- [Heroku Node.js Support](https://devcenter.heroku.com/articles/nodejs-support)
-- [Getting Started with Node.js on Heroku](https://devcenter.heroku.com/articles/nodejs)
-- [10 Habits of a Happy Node Hacker](https://blog.heroku.com/archives/2014/3/11/node-habits)
-- [Buildpacks](https://devcenter.heroku.com/articles/buildpacks)
-- [Buildpack API](https://devcenter.heroku.com/articles/buildpack-api)
-
-
-Try npm@next
-------------
-
-Soon, you'll be able to specify an npm version alongside your node version (engines.npm).
-For now, if you'd like to test out the latest version of npm, you can use the #npm-next branch:
-
-```
-heroku config:set BUILDPACK_URL=https://github.com/heroku/heroku-buildpack-node#npm-next
-git commit -am 'npm@next' --allow-empty
-git push heroku master
-```
-
-Legacy Compatibility
---------------------
-
-For most Node.js apps this buildpack should work just fine. If, however, you're unable to deploy using this new version of the buildpack, you can get your app working again by using the legacy branch:
-
-```
-heroku config:set BUILDPACK_URL=https://github.com/heroku/heroku-buildpack-nodejs#legacy -a my-app
-git commit -am "empty" --allow-empty # force a git commit
-git push heroku master
-```
-
-Then please open a support ticket at [help.heroku.com](https://help.heroku.com/) so we can diagnose and get your app running on the default buildpack.
-
-Hacking
--------
-
-To make changes to this buildpack, fork it on Github. Push up changes to your fork, then create a new Heroku app to test it, or configure an existing app to use your buildpack:
-
-```
-# Create a new Heroku app that uses your buildpack
-heroku create --buildpack <your-github-url>
-
-# Configure an existing Heroku app to use your buildpack
-heroku config:set BUILDPACK_URL=<your-github-url>
-
-# You can also use a git branch!
-heroku config:set BUILDPACK_URL=<your-github-url>#your-branch
-```
-
+- Does not automatically creates a [Procfile](https://devcenter.heroku.com/articles/procfile).
+- Ignores `NODE_ENV` and install `devDependencies`.
+- Installs the 'next' version of npm.
 
 Testing
 -------
