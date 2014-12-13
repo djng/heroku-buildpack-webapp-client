@@ -1,15 +1,47 @@
 #!/usr/bin/env bash
 # See README.md for info on running these tests.
 
-testDetectWithPackageJson() {
-  detect "stable-node"
-  assertCaptured "Node.js"
+testDetectWithGruntFile() {
+  detect "grunt-file"
+  assertCaptured "Found web application in client directory"
   assertCapturedSuccess
 }
 
-testDetectWithoutPackageJson() {
-  detect "no-package-json"
-  assertCapturedError 1 ""
+testNoPackageJson() {
+  compile "no-package-json"
+  assertCaptured "No package.json found; Adding grunt to new package.json"
+  assertTrue 'No package.json found' '[ -e ${compile_dir}/client/package.json ]'
+  assertCapturedSuccess
+}
+
+testNoGruntDependency() {
+  compile "no-grunt"
+  assertCaptured "Augmenting package.json with grunt and grunt-cli"
+  assertEquals "1" "$(grep \"grunt.*:.*~0.4.5\" ${compile_dir}/client/package.json | wc -l)"
+  assertEquals "1" "$(grep \"grunt-cli.*:.*~0.1.13\" ${compile_dir}/client/package.json | wc -l)"
+  assertCapturedSuccess
+}
+
+testNoGruntOverwrite() {
+  compile "no-grunt-overwrite"
+  assertCaptured "Augmenting package.json with grunt and grunt-cli"
+  assertEquals "1" "$(grep \"grunt.*:.*0.4.5\" ${compile_dir}/client/package.json | wc -l)"
+  assertEquals "1" "$(grep \"grunt-cli.*:.*0.1.9\" ${compile_dir}/client/package.json | wc -l)"
+  assertCapturedSuccess
+}
+
+testNoBower() {
+  compile "no-bower"
+  assertCaptured "Augmenting package.json with bower"
+  assertEquals "1" "$(grep \"bower.*:.*~1.3.12\" ${compile_dir}/client/package.json | wc -l)"
+  assertCapturedSuccess
+}
+
+testNpmNext() {
+  compile "stable-node"
+  assertCaptured "Installing the 'next' version of npm"
+  assertCaptured "Using npm version:"
+  assertCapturedSuccess
 }
 
 testNoVersion() {
@@ -57,13 +89,6 @@ testUnstableVersion() {
   assertCapturedSuccess
 }
 
-testProfileCreated() {
-  compile "stable-node"
-  assertCaptured "Building runtime environment"
-  assertFile "export PATH=\"\$HOME/vendor/node/bin:\$HOME/bin:\$HOME/node_modules/.bin:\$PATH\";" ".profile.d/nodejs.sh"
-  assertCapturedSuccess
-}
-
 testInvalidDependency() {
   compile "invalid-dependency"
   assertCaptured "not in the npm registry"
@@ -74,7 +99,7 @@ testNodeModulesCached() {
   cache=$(mktmpdir)
   compile "caching" $cache
   assertCaptured "Caching node"
-  assertEquals "1" "$(ls -1 $cache/ | wc -l)"
+  assertEquals "1" "$(ls -1 $cache/ | grep node | wc -l)"
 }
 
 testModulesCheckedIn() {
@@ -91,26 +116,6 @@ testUserConfig() {
   assertCapturedError 1 ""
 }
 
-testProcfileAbsentNpmStartPresent() {
-  compile "procfile-absent-npm-start-present"
-  assertCaptured "No Procfile found; Adding npm start to new Procfile"
-  assertFile "web: npm start" "Procfile"
-  assertCapturedSuccess
-}
-
-testProcfileAbsentNpmStartAbsent() {
-  compile "procfile-absent-npm-start-absent"
-  assertCaptured "Create a Procfile or specify a start script in package.json"
-  assertCapturedSuccess
-}
-
-testProcfileAbsentNpmStartPresent() {
-  compile "procfile-absent-npm-start-present"
-  assertCaptured "No Procfile found; Adding npm start to new Procfile"
-  assertFile "web: npm start" "Procfile"
-  assertCapturedSuccess
-}
-
 testEnvDirNotImported() {
   compile "stable-node"
   assertNotCaptured "Exporting config vars to environment"
@@ -123,6 +128,31 @@ testEnvDirExported() {
   echo "koi" > $env_dir/fish
   compile "stable-node" "$(mktmpdir)" $env_dir
   assertCaptured "Exporting config vars to environment"
+  assertCapturedSuccess
+}
+
+testCompass() {
+  compile "stable-node"
+  RVT=$(ruby -e "require 'rbconfig';puts \"#{RUBY_ENGINE}/#{RbConfig::CONFIG['ruby_version']}\"")
+  assertCaptured "Installing Compass"
+  assertCaptured "Caching ruby gems directory for future builds"
+  assertTrue 'Grunt not found' '[ -e ${compile_dir}/client/.gem/${RVT}/bin/compass ]'
+  assertCapturedSuccess
+}
+
+testBowerInstallCache() {
+  cache=$(mktmpdir)
+  compile "no-bower" $cache
+  assertCaptured "Install bower dependencies"
+  assertCaptured "Caching bower cache directory for future builds"
+  assertTrue 'Bower not cached' '[ -d $cache/.bowercache ]'
+  assertCapturedSuccess
+}
+
+testGruntRun() {
+  compile "no-bower"
+  assertCaptured "Running grunt build task"
+  assertTrue 'Dist folder not found' '[ -d ${compile_dir}/client/dist ]'
   assertCapturedSuccess
 }
 
@@ -149,8 +179,9 @@ compile_dir=""
 
 compile() {
   compile_dir=$(mktmpdir)
-  cp -r ${bp_dir}/test/$1/. ${compile_dir}
-  capture ${bp_dir}/bin/compile ${compile_dir} ${2:-$(mktmpdir)} $3
+  mkdir -p ${compile_dir}/client
+  cp -r ${bp_dir}/test/$1/. ${compile_dir}/client
+  capture ${bp_dir}/bin/compile ${compile_dir} ${2:-$(mktmpdir)} ${3:-"NONE"} "nocl"
 }
 
 assertFile() {
