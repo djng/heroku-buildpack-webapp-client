@@ -1,4 +1,4 @@
-Web Application Buildpack
+Web Application Buildpack [![Build Status](https://travis-ci.org/djng/heroku-buildpack-webapp-client.svg)](https://travis-ci.org/djng/heroku-buildpack-webapp-client)
 =========================
 
 This is a [Heroku buildpack](http://devcenter.heroku.com/articles/buildpacks) for your grunt based web application located in the `client` directory of your project. It installs npm and bower dependencies, runs grunt and supports compass.
