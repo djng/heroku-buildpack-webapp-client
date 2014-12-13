@@ -177,6 +177,28 @@ if test -d $build_dir/.gem; then
   cp -r $build_dir/.gem $cache_dir/ruby
 fi
 
+# Install bower dependencies
+if [ -e $build_dir/bower.json ]; then
+  status "Install bower dependencies"
+  if test -d $cache_dir/.bowercache; then
+    status "Restoring bower components from cache"
+    cp -r $cache_dir/.bowercache $build_dir
+    HOME=$build_dir $build_dir/node_modules/.bin/bower install --config.storage.packages=$build_dir/.bowercache 2>&1 | indent
+  else
+    HOME=$build_dir $build_dir/node_modules/.bin/bower install --config.storage.packages=$build_dir/.bowercache 2>&1 | indent
+  fi
+
+  # Cache bower
+  rm -rf $cache_dir/.bowercache
+  mkdir -p $cache_dir/.bowercache
+
+  # If app has a bower directory, cache it.
+  if test -d $build_dir/.bowercache; then
+    status "Caching bower cache directory for future builds"
+    cp -r $build_dir/.bowercache $cache_dir
+  fi
+fi
+
 # Update the PATH
 status "Building runtime environment"
 mkdir -p $build_dir/.profile.d
