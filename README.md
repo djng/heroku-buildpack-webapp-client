@@ -65,3 +65,12 @@ heroku build -b ddollar/test # -b can also point to a local directory
 ```
 
 For more info on testing, see [Best Practices for Testing Buildpacks](https://discussion.heroku.com/t/best-practices-for-testing-buildpacks/294) on the Heroku discussion forum.
+
+Contribute
+----------
+
+If you'd like to contribute, simply fork [the repository](https://github.com/djng/heroku-buildpack-webapp-client), commit your changes to the **master** branch (or branch off of it), and send a pull request.
+
+Roadmap
+-------
+- Make `client` and `client/dist` directory names configureable
