@@ -1,15 +1,23 @@
 Web Application Buildpack
 =========================
 
-This is a [Heroku buildpack](http://devcenter.heroku.com/articles/buildpacks) for your grunt based web application located in the `client` directory of your project. It installs npm and bower dependencies, runs grunt and supports compass.
+This is a [Heroku buildpack](http://devcenter.heroku.com/articles/buildpacks) for your grunt based web application located in
+a `client` directory of your project. It installs npm and bower dependencies, runs grunt and supports compass.
 
 The buildpack runs if it finds a `client` directory containing a gruntfile (`grunt.js`, `Gruntfile.js` or `Gruntfile.coffee`).
 Your gruntfile must provide a `build` task and build the client into a `client/dist` folder.
 
-Your server buildpack can then collect and serve the assets from `client/dist`.
+Your server buildpack can then collect and serve the assets from `client/dist`. Everything except `client/dist` will be removed after build to reduce
+the slug size.
 
 How to use
 ----------
+
+You can configure your `client` directory and `dist` subdirectory with a `.client` file:
+
+    $ cat .client
+    CLIENT_DIR=myclient
+    DIST_DIR=mydist
 
 This is _not_ a standalone buildpack. It builds the client part of your web application and should be used together with other buildpacks like
 [heroku-buildpack-ruby](https://github.com/heroku/heroku-buildpack-ruby) or [heroku-buildpack-python](https://github.com/heroku/heroku-buildpack-python).

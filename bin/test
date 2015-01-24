@@ -7,6 +7,13 @@ testDetectWithGruntFile() {
   assertCapturedSuccess
 }
 
+testClientConfig() {
+  compile_config "client-config"
+  assertCaptured "Load config from .client"
+  assertCaptured "Client dir: myclient"
+  assertCapturedSuccess
+}
+
 testNoPackageJson() {
   compile "no-package-json"
   assertCaptured "No package.json found; Adding grunt to new package.json"
@@ -176,6 +183,12 @@ detect() {
 }
 
 compile_dir=""
+
+compile_config() {
+  compile_dir=$(mktmpdir)
+  cp -r ${bp_dir}/test/$1/. ${compile_dir}
+  capture ${bp_dir}/bin/compile ${compile_dir} ${2:-$(mktmpdir)} ${3:-"NONE"}
+}
 
 compile() {
   compile_dir=$(mktmpdir)
