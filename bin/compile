@@ -30,7 +30,7 @@ build_dir=$1/${CLIENT_DIR:-"client"}
 # Grunt / Gulp task name
 dist_dir=${DIST_DIR:-dist}
 
-status "Client dir: $CLIENT_DIR"
+status "Client dir: ${$CLIENT_DIR:-client}"
 status "Dist dir: $dist_dir"
 
 # Fix leak
