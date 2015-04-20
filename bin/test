@@ -62,7 +62,7 @@ testDangerousRangeStar() {
   compile "dangerous-range-star"
   assertCaptured "PRO TIP: Avoid using semver ranges like '*'"
   assertCaptured "Requested node range:  *"
-  assertCaptured "Resolved node version: 0.10"
+  assertCaptured "Resolved node version: 0.12"
   assertCapturedSuccess
 }
 
@@ -70,14 +70,14 @@ testDangerousRangeGreaterThan() {
   compile "dangerous-range-greater-than"
   assertCaptured "PRO TIP: Avoid using semver ranges starting with '>'"
   assertCaptured "Requested node range:  >"
-  assertCaptured "Resolved node version: 0.10."
+  assertCaptured "Resolved node version: 0.12"
   assertCapturedSuccess
 }
 
 testRangeWithSpace() {
   compile "range-with-space"
   assertCaptured "Requested node range:  >= 0.8.x"
-  assertCaptured "Resolved node version: 0.10."
+  assertCaptured "Resolved node version: 0.12"
   assertCapturedSuccess
 }
 
@@ -91,8 +91,8 @@ testStableVersion() {
 
 testUnstableVersion() {
   compile "unstable-version"
-  assertCaptured "Requested node range:  >0.11.0"
-  assertCaptured "Resolved node version: 0.11."
+  assertCaptured "Requested node range:  0.11.x"
+  assertCaptured "Resolved node version: 0.11"
   assertCapturedSuccess
 }
 
