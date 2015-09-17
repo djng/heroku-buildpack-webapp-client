@@ -78,7 +78,3 @@ Contribute
 ----------
 
 If you'd like to contribute, simply fork [the repository](https://github.com/djng/heroku-buildpack-webapp-client), commit your changes to the **master** branch (or branch off of it), and send a pull request.
-
-Roadmap
--------
-- Make `client` and `client/dist` directory names configureable
