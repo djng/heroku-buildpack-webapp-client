@@ -184,6 +184,16 @@ if test -d $cache_dir/ruby/.gem/$RUBY_VERSION; then
   status "Restoring ruby gems directory from cache"
   cp -r $cache_dir/ruby/.gem $build_dir
   HOME=$build_dir gem update compass --user-install --no-rdoc --no-ri 2>&1 | indent
+
+  # Try to run compass - reinstall if it fails
+  if compass -v >/dev/null 2>&1; then
+    status "Compass ok"
+  else
+    status "Reinstalling compass"
+    HOME=$build_dir gem uninstall compass --user-install 2>&1 | indent
+    HOME=$build_dir gem install compass --user-install --no-rdoc --no-ri 2>&1 | indent
+  fi
+
 else
   HOME=$build_dir gem install compass --user-install --no-rdoc --no-ri 2>&1 | indent
 fi
