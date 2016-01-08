@@ -112,8 +112,8 @@ PATH=$build_dir/vendor/node/bin:$PATH
 cd $build_dir
 
 # Install npm@next
-status "Installing the 'next' version of npm"
-npm install -g npm@next 2>&1 | indent
+status "Installing the 'latest' version of npm"
+npm install -g npm@latest 2>&1 | indent
 npm_version=$(npm -v)
 status "Using npm version: $npm_version"
 
