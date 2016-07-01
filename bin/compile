@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 set -e            # fail fast
-set -o pipefail   # don't ignore exit codes when piping output
+set -o pipefail   # don\'t ignore exit codes when piping output
 # set -x          # enable debugging
 
 # Enable extended globbing
@@ -15,22 +15,19 @@ bp_dir=$(cd $(dirname $0); cd ..; pwd)
 # Option [nocl] to disable cleanup for testing
 cleanup=$4
 
-# Load some convenience functions like status(), echo(), and indent()
+# Load some convenience functions like load_user_config(), status(), echo(), and indent()
 source $bp_dir/bin/common.sh
 
 # Load user config
-if [ -e $1/.client ]; then
-  status "Load config from .client"
-  source $1/.client
-fi
+load_user_config $1
 
 # Client build directory
-build_dir=$1/${CLIENT_DIR:-"client"}
+build_dir=$1/$CLIENT_DIR
 
 # Grunt / Gulp task name
-dist_dir=${DIST_DIR:-dist}
+dist_dir=$DIST_DIR
 
-status "Client dir: ${CLIENT_DIR:-client}"
+status "Client dir: $CLIENT_DIR"
 status "Dist dir: $dist_dir"
 
 # Fix leak
@@ -243,5 +240,5 @@ echo "export PATH=\"\$HOME/.gem/$RUBY_VERSION/bin:\$PATH\"" > $build_dir/.profil
 # Cleanup
 if [ "$cleanup" != "nocl" ]; then
   status "Cleanup"
-  rm -rf !(${dist_dir})
+  rm -rf !${dist_dir}
 fi
