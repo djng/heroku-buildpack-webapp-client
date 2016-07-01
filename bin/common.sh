@@ -41,3 +41,12 @@ export_env_dir() {
     done
   fi
 }
+
+load_user_config() {
+  if [ -e $1/.client ]; then
+    status "Load config from .client"
+    source $1/.client
+  fi
+  CLIENT_DIR=${CLIENT_DIR:-"client"}
+  DIST_DIR=${DIST_DIR:-"dist"}
+}
