@@ -76,7 +76,7 @@ fi
 # Look in package.json's engines.node field for a semver range
 semver_range=$(cat $build_dir/package.json | $bp_dir/vendor/jq -r .engines.node)
 
-# Resolve node version using semver.io
+status "Resolve node version using semver.io with semver_range: $semver_range"
 node_version=$(curl --silent --get --data-urlencode "range=${semver_range}" https://semver.io/node/resolve)
 
 # Recommend using semver ranges in a safe manner
