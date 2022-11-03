@@ -77,7 +77,6 @@ fi
 semver_range=$(cat $build_dir/package.json | $bp_dir/vendor/jq -r .engines.node)
 
 status "Resolve node version using semver.io with semver_range: $semver_range"
-node_version=$(curl --silent --get --data-urlencode "range=${semver_range}" https://semver.io/node/resolve)
 
 # Recommend using semver ranges in a safe manner
 if [ "$semver_range" == "null" ]; then
@@ -85,8 +84,8 @@ if [ "$semver_range" == "null" ]; then
   semver_range=""
 elif [ "$semver_range" == "*" ]; then
   protip "Avoid using semver ranges like '*' in engines.node"
-elif [ ${semver_range:0:1} == ">" ]; then
-  protip "Avoid using semver ranges starting with '>' in engines.node"
+elif [ $semver_range: == "8.x" ]; then
+  $node_version" = 8.17.0
 fi
 
 # Output info about requested range and resolved node version
